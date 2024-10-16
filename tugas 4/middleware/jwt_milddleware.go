@@ -27,7 +27,7 @@ func JWTMiddleware() echo.MiddlewareFunc {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, echo.ErrUnauthorized
 				}
-				return []byte("secret"), nil // Ganti "secret" dengan kunci rahasia Anda
+				return []byte("secret"), nil 
 			})
 
 			if err != nil || !token.Valid {
