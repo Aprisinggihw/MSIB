@@ -9,8 +9,9 @@ import (
 
 type TodoRepository interface {
 	Create(ctx context.Context,todo *entity.Todo) error
+	GetAll(ctx context.Context)	([]entity.Todo, error)
 	GetByID(ctx context.Context,id uint) (*entity.Todo, error)
-	GetAll(ctx context.Context,userID uint) ([]entity.Todo, error)
+	GetByUserID(ctx context.Context,userID uint) ([]entity.Todo, error)
 	Update(ctx context.Context,todo *entity.Todo) error
 	Delete(ctx context.Context,id uint) error
 }
@@ -27,6 +28,16 @@ func (r *todoRepository) Create(ctx context.Context,todo *entity.Todo) error {
 	return r.db.WithContext(ctx).Create(todo).Error
 }
 
+func (r *todoRepository) GetAll(ctx context.Context) ([]entity.Todo, error) {
+	var todos []entity.Todo
+	if err := r.db.WithContext(ctx).
+	Find(&todos).Error; err != nil {
+		return nil, err
+	}
+	return todos, nil
+}
+
+
 func (r *todoRepository) GetByID(ctx context.Context,id uint) (*entity.Todo, error) {
 	var todo entity.Todo
 	if err := r.db.WithContext(ctx).First(&todo, id).Error; err != nil{
@@ -35,7 +46,7 @@ func (r *todoRepository) GetByID(ctx context.Context,id uint) (*entity.Todo, err
 	return &todo, nil
 }
 
-func (r *todoRepository) GetAll(ctx context.Context,userID uint) ([]entity.Todo, error) {
+func (r *todoRepository) GetByUserID(ctx context.Context,userID uint) ([]entity.Todo, error) {
 	var todos []entity.Todo
 	if err := r.db.WithContext(ctx).
 	Where("user_id = ?", userID).

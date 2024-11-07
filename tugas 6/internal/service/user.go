@@ -2,14 +2,14 @@ package service
 
 import (
 	"context"
-	"tugas-6/internal/entity"
-	"tugas-6/internal/repository"
-	"tugas-6/pkg/cache"
-	"tugas-6/pkg/token"
 	"encoding/json"
 	"errors"
 	"log"
 	"time"
+	"tugas-6/internal/entity"
+	"tugas-6/internal/repository"
+	"tugas-6/pkg/cache"
+	"tugas-6/pkg/token"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -69,8 +69,8 @@ func (s *userService) Register(ctx context.Context, req *entity.UserReg) error {
 	if err == nil {
 		return errors.New("username already exists")
 	}
-	// Invalidate cache "design-pattern:users:find-all"
-	keyFindAll := "design-pattern:users:find-all"
+	// Invalidate cache "tugas-6:users:find-all"
+	keyFindAll := "tugas-6:users:find-all"
 	err = s.cacheable.Delete(keyFindAll) // Menghapus cache lama
 	if err != nil {
 		return errors.New("falied deleting key cache")
@@ -89,14 +89,15 @@ func (s *userService) Login(ctx context.Context, username, password string) (str
 		return "", errors.New("username or password invalid")
 	}
 
-	expiredTime := time.Now().Local().Add(time.Minute * 10)
+	expiredTime := time.Now().Local().Add(time.Minute * 5)
 
 	claims := token.JwtCustomClaims{
+		UserID:   uint(user.ID),
 		Username: user.Username,
 		Role:     user.Role,
 		FullName: user.FullName,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "design-pattern",
+			Issuer:    "tugas-6",
 			ExpiresAt: jwt.NewNumericDate(expiredTime),
 		},
 	}
@@ -105,6 +106,10 @@ func (s *userService) Login(ctx context.Context, username, password string) (str
 	if err != nil {
 		return "", errors.New("ada kesalahan di server")
 	}
-
+	keyGetTodos := "tugas-6:todos:get-todos"
+	err = s.cacheable.Delete(keyGetTodos)
+	if err != nil {
+		return "", errors.New("falied deleting key cache")
+	}
 	return token, nil
 }

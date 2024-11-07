@@ -18,6 +18,7 @@ func NewTokenUseCase(secretKey string) TokenUseCase {
 
 type JwtCustomClaims struct {
 	Username string `json:"username"`
+	UserID uint `json:"user_id"`
 	Role     string `json:"role"`
 	FullName string `json:"full_name"`
 	jwt.RegisteredClaims

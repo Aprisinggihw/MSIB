@@ -54,7 +54,8 @@ func RBACMiddleware(roles []string) echo.MiddlewareFunc {
 		return func(ctx echo.Context) error {
 			user := ctx.Get("user").(*jwt.Token)
 			claims := user.Claims.(*token.JwtCustomClaims)
-
+ 			// Simpan data user_id ke context
+ 			ctx.Set("user_id", claims.UserID)
 			allowed := false
 			for _, role := range roles {
 				if role == claims.Role {
@@ -62,7 +63,7 @@ func RBACMiddleware(roles []string) echo.MiddlewareFunc {
 					break
 				}
 			}
-
+			
 			if !allowed {
 				return ctx.JSON(http.StatusForbidden, response.ErrorResponse(http.StatusForbidden, "anda tidak diizinkan untuk mengakses resource ini."))
 			}
